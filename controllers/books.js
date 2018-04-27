@@ -5,7 +5,24 @@
 const db = require('../mysql');
 
 module.exports.get = async (ctx, next) => {
+	const limit = ctx.request.query.limit || 10;
+	const offset = ctx.request.query.offset || 0;
+	const orderField = ctx.request.query.orderField || null;
+	const order = ctx.request.query.order || 'ASC';
 
+	try {
+		let request = null;
+		if (orderField) {
+			request = `SELECT * FROM books ORDER BY ${orderField} ${order} LIMIT ${limit} OFFSET ${offset};`;
+		} else {
+			request = `SELECT * FROM books LIMIT ${limit} OFFSET ${offset};`;
+		}
+
+		ctx.body = await db.query(request);
+	} catch (err) {
+		ctx.status = 500;
+		ctx.body = err;
+	}
 };
 
 module.exports.add = async (ctx, next) => {
@@ -33,7 +50,6 @@ module.exports.add = async (ctx, next) => {
 		ctx.status = 500;
 		ctx.body = err;
 	}
-
 };
 
 module.exports.update = async (ctx, next) => {
