@@ -3,9 +3,11 @@
  */
 'use strict';
 const koa = require('koa');
+const bodyParser = require('koa-bodyparser');
 const router = require('./router');
 const app = module.exports = new koa();
 
+app.use(bodyParser());
 app.use(router);
 
 if (!module.parent) {
