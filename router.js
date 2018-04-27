@@ -9,6 +9,7 @@ const generator = require('./controllers/generator');
 
 router.get('/books', books.get);
 router.post('/books', books.add);
+router.put('/books/:id', books.update);
 router.get('/generate', generator.generate);
 
 module.exports = router.routes();

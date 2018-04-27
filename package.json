@@ -7,8 +7,10 @@
   },
   "dependencies": {
     "koa": "^2.0.1",
+    "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.4.0",
-    "promise-mysql": "^3.2.1"
+    "promise-mysql": "^3.2.1",
+    "redis": "^2.8.0"
   },
   "devDependencies": {}
 }
