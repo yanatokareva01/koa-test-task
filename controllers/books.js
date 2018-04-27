@@ -3,12 +3,21 @@
  */
 'use strict';
 const db = require('../mysql');
+const redis = require('redis'), client = redis.createClient();
+const { promisify } = require('util');
+const getAsync = promisify(client.get).bind(client);
 
 module.exports.get = async (ctx, next) => {
 	const limit = ctx.request.query.limit || 10;
 	const offset = ctx.request.query.offset || 0;
 	const orderField = ctx.request.query.orderField || null;
 	const order = ctx.request.query.order || 'ASC';
+
+	const cached = await getAsync(`limit=${limit}&offset=${offset}&orderField=${orderField}&order=${order}`);
+	if (cached) {
+		ctx.body = JSON.parse(cached);
+		return;
+	}
 
 	try {
 		let request = null;
@@ -18,7 +27,13 @@ module.exports.get = async (ctx, next) => {
 			request = `SELECT * FROM books LIMIT ${limit} OFFSET ${offset};`;
 		}
 
-		ctx.body = await db.query(request);
+		const result = await db.query(request);
+
+		client.set(`limit=${limit}&offset=${offset}&orderField=${orderField}&order=${order}`,
+			JSON.stringify(result),
+			'EX', 10);
+
+		ctx.body = result;
 	} catch (err) {
 		ctx.status = 500;
 		ctx.body = err;
